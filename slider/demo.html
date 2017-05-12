@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>demo</title>
+    <style type="text/css">
+        html{
+            font-size:100px;
+        }
+        body{
+            margin:0 auto;
+        }
+        .advertise{ width:12.8rem; height:7.21rem; overflow:hidden;
+            float:left; display:inline; position:relative;
+        }
+        #adv{ width:12.8rem; height:7.21rem; overflow:hidden; float:left;}
+        #adv a{ display:block; width:12.8rem; height:7.21rem; overflow:hidden; float:left;}
+        #adv img{ float:left; width:12.8rem; height:7.21rem;}
+        #dotted{ position:absolute; height:0.4rem; bottom:0.3rem;}
+        #dotted span{ display:block; width:0.4rem; height:0.4rem; margin-left:0.3rem;
+            -webkit-border-radius:50%;
+            -moz-border-radius:50%;
+            border-radius:50%;
+            background-color:rgba(255,255,255,0.8);
+            float:left;
+        }
+    </style>
+    <script type="text/javascript" src="Slider.js"></script>
+    <script type="text/javascript">
+        var _w=document.documentElement.clientWidth||document.body.clientWidth;
+        var _size=100/(1280/_w);
+        document.documentElement.style.fontSize=_size+"px";
+
+        function Slider(){
+            var _self=this;
+            this.timer=0;
+            this.left=0;
+            this.start=0;
+            this.over=0;
+            this.pos=0;
+            this.width=0
+            this.times=1;
+            this.obj=document.getElementById("adv");
+            this.dotted=document.getElementById("dotted");
+            this.rgba="rgba(187,187,187,0.8)";
+            this.turnLeft=function(){
+                _self.left-=_self.width*0.1;
+                _self.obj.style.marginLeft=_self.left+"px";
+                if(_self.times%10!=0){
+                    _self.times++;
+                    _self.timer=window.setTimeout(_self.imgSlider,30);
+                }else{
+                    _self.left=_self.pos-_self.width;
+                    _self.pos=_self.left;
+                    if(Math.abs(_self.pos)==(_self.obj.clientWidth-_self.width)){
+                        _self.left=0;
+                        _self.pos=0;
+                        _self.obj.style.marginLeft=_self.left+"px";
+                        _self.times=0;
+                    }else{
+                        _self.obj.style.marginLeft=_self.left+"px";
+                    }
+                    _self.times++;
+                    for(var i=0;i<_self.dotted.children.length;i++){
+                        _self.dotted.children[i].style.backgroundColor=this.rgba;
+                    }
+                    _self.dotted.children[Math.abs(_self.pos/_self.width)].style.backgroundColor="rgba(246,89,12,0.8)";
+                    _self.timer=window.setTimeout(_self.imgSlider,2000);
+                }
+            }
+            this.turnRight=function(){
+                _self.left+=_self.width*0.1;
+                _self.obj.style.marginLeft=_self.left+"px";
+                if(_self.times%10!=0){
+                    _self.times++;
+                    _self.timer=window.setTimeout(_self.imgSlider,30);
+                }else{
+                    _self.left=_self.pos+_self.width;
+                    _self.pos=_self.left;
+                    if(_self.pos==0){
+                        _self.left=-_self.obj.clientWidth+_self.width;
+                        _self.pos=_self.left;
+                        _self.obj.style.marginLeft=_self.left+"px";
+                        _self.times=0;
+                    }else{
+                        _self.obj.style.marginLeft=_self.left+"px";
+                    }
+                    _self.times++;
+                    for(var i=0;i<_self.dotted.children.length;i++){
+                        _self.dotted.children[i].style.backgroundColor=this.rgba;
+                    }
+                    //console.log(Math.abs(_self.pos));
+                    _self.dotted.children[Math.abs(_self.pos/_self.width)==_self.obj.children.length-1?0:Math.abs(_self.pos/_self.width)].style.backgroundColor="rgba(246,89,12,0.8)";
+                    _self.timer=window.setTimeout(_self.imgSlider,2000);
+                }
+            }
+            this.imgSlider=function(){
+                window.clearTimeout(_self.timer);
+                if(_self.start>=_self.over){
+                    if(Math.abs(_self.left)==_self.obj.clientWidth-_self.width){
+                        _self.left=0;
+                        _self.pos=_self.left;
+                    }
+                    _self.turnLeft();
+                }else{
+                    if(_self.left==0){
+                        _self.left=-_self.obj.clientWidth+_self.width;
+                        _self.pos=_self.left;
+                    }
+                    _self.turnRight();
+                }
+            }
+            this.touchEvent=function(){
+                for(var i=0;i<_self.obj.children.length;i++){
+                    _self.obj.children[i].addEventListener("touchstart",function(e){
+                        _self.start=e.touches[0].clientX;
+                    },false);
+                    _self.obj.children[i].addEventListener("touchend",function(e){
+                        _self.over=e.changedTouches[0].clientX;
+                        if(Math.abs(_self.start-_self.over)>50){
+                            window.clearTimeout(_self.timer);
+                            _self.imgSlider();
+                        }
+                    },false);
+                }
+            }
+            this.isComplete=function(){
+                window.clearTimeout(_self.timer);
+                var _complete=true;
+                for(var m=0;m<_self.obj.children.length;m++){
+                    if(!_self.obj.children[m].children[0].complete){
+                        _complete=false;
+                    }
+                }
+                if(_complete){
+                    _self.width=_self.obj.parentNode.offsetWidth;
+                    _self.obj.style.width=_self.obj.parentNode.offsetWidth*_self.obj.children.length+"px";
+                    _self.touchEvent();
+                    _self.timer=window.setTimeout(_self.imgSlider,2000);
+                }else{
+                    _self.timer=window.setTimeout(_self.isComplete,60);
+                }
+            }
+            this.initDotted=function(){
+                this.dotted.children[0].style.backgroundColor="rgba(246,89,12,0.8)";
+                this.dotted.style.width=this.dotted.children.length*_size*0.7+0.3*_size+"px";
+                this.dotted.style.left=(_w-this.dotted.offsetWidth)/2+"px";
+            }
+            this.initDom=function(){
+                var _list=[],_tmp=null;
+                var _html="",_last="",_dotted="";
+                _list=["images/img01.jpg","images/img02.jpg","images/img03.jpg"];
+                for(var i=0;i<_list.length;i++){
+                    _html+="<a href=\"#\"><img alt=\"\" src=\""+_list[i]+"\" draggable=\"false\"/></a>";
+                    if(i==0){
+                        _last="<a href=\"#\"><img alt=\"\" src=\""+_list[i]+"\" draggable=\"false\"/></a>";
+                    }
+                    _dotted+="<span></span>";
+                }
+                this.obj.innerHTML=_html+_last;
+                this.dotted.innerHTML=_dotted;
+                this.initDotted();
+                this.isComplete();
+            }
+        }
+        window.onload=function(){
+            new Slider().initDom();
+        }
+    </script>
+</head>
+<body>
+<div class="advertise">
+    <div id="adv"></div>
+    <div id="dotted"></div>
+</div>
+</body>
+</html>
