@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+	<style type="text/css">
+		#demo{
+			width:300px; height:300px; background-color:red;
+		}
+		#center{
+			width:200px; height:200px; background-color:yellow;
+		}
+		#inner{
+			width:100px; height:100px; background-color:green;
+		}
+		.demo{ width:100px; height:100px; background-color:#000; margin:10px;}
+		span{ display:block; width:100px; height:100px; background-color:yellow; margin:10px;}
+	</style>
+    <script type="text/javascript">
+		/**
+		 * _obj:委托的目标对象，即代理对象
+		 * _filter:委托对象标签名，字符串类型
+		 * _type:委托的事件类型
+		 * _fn:委托的事件类型
+		 */
+		function delegate(_obj,_filter,_type,_fn){
+			_obj[_type]=function(e){//===_body.onclick=function(e){
+				var _tmp=_obj.getElementsByTagName(_filter);
+				e=e||window.event;
+				for(var n=0;n<_tmp.length;n++){
+					if(_tmp[n]===(e.target||e.srcElement)){
+						_tmp[n].fx=function(){
+							this.fn=_fn;//改变this执行环境，使this指向当前被点击对象，而不是委托对象
+							this.fn();
+						}
+						_tmp[n].fx();//手动的强制让onclick执行
+						_tmp[n].fx=null;//运行完以后清除掉事件；
+						break;
+					}
+				}
+			}
+		}
+	</script>
+</head>
+<body>
+<div id="demo">
+	<div id="center">
+		<div id="inner">
+			
+		</div>
+	</div>
+</div>
+<div class="demo 1"></div>
+<div class="demo 2"></div>
+<div class="demo 3"></div>
+<div class="demo 4"></div>
+<div class="demo 5"></div>
+<span></span>
+<input type="button" id="btn" value="appendDiv"/>
+</body>
+</html>

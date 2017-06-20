@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{ margin:0 auto;}
+        #container{ width:1000px; height:200px; overflow:hidden; margin:0 auto;}
+        #container span{ display:block; width:172px; height:172px; padding:3px; border:solid 1px #ccc; float:left; margin:10px; display:inline;}
+        #container span img{ width:172px; height:172px; border:none; float:left;}
+
+        #button{ width:1000px; height:40px; margin:0 auto; overflow:hidden;}
+        #button span.root{ display:block; width:180px; height:40px; overflow:hidden; margin:0 auto;}
+        #button span span{ display:block; width:28px; height:28px; overflow:hidden; border:solid 1px #ccc; float:left; margin-left:5px; display:inline; line-height:30px; font-size:13px; color:#555; text-align:center; cursor:pointer;}
+    </style>
+    <script type="text/javascript" src="../javascript/Ajax.js"></script>
+    <script type="text/javascript">
+        function loadImage(_s,_e){
+            var _container=document.getElementById("container");
+            ajaxRequest("post","javascript/waterfall.json",null,function(data){
+                var _data=JSON.parse(data);
+                var _span=null,_img=null;
+                for(var i=_s;i<_e;i++){
+                    _span=document.createElement("span");
+                    _img=document.createElement("img");
+                    _img.src="waterfall/"+_data["images"][i]+".jpg";
+                    _span.appendChild(_img);
+                    _container.appendChild(_span);
+                }
+            },true);
+        }
+        function changeButtonText(_root,_current){
+            var _length=_root.children.length;
+            if(_current===_root.children[_length-1]){
+                if(parseInt(_current.innerText)<14) {
+                    for (var i = 0; i < _length; i++) {
+                        _root.children[i].innerText = parseInt(_current.innerText) - 2 + i;
+                        if(parseInt(_root.children[i].innerText)>14){
+                            _root.children[i].style.display="none";
+                        }
+                    }
+                }
+            }
+            if(_current===_root.children[0]){
+                var _value=parseInt(_current.innerText);
+                if(_value-2>0) {
+                    for (var i = 0; i < _length; i++) {
+                        _root.children[i].innerText = _value - 2 + i;
+                        _root.children[i].style.display="block";
+                    }
+                }
+            }
+
+        }
+        function boundEvent(_root){
+            for(var i=0;i<_root.children.length;i++){
+                _root.children[i].onclick=function(){
+                    var _container=document.getElementById("container");
+                    _container.innerHTML="";
+                    loadImage((parseInt(this.innerText)-1)*5,parseInt(this.innerText)*5);
+                    changeButtonText(_root,this);
+                }
+            }
+        }
+        function pushButton(n){
+            var _span=null;
+            var _root=document.createElement("span");
+            _root.className="root";
+            var _button=document.getElementById("button");
+            _button.appendChild(_root);
+            for(var i=0;i<n;i++){
+                _span=document.createElement("span");
+                _span.innerText=i+1;
+                _root.appendChild(_span);
+            }
+            boundEvent(_root);
+        }
+        window.onload=function(){
+            var _s=0,_e=5;
+            loadImage(_s,_e);
+            pushButton(5);
+        }
+    </script>
+</head>
+<body>
+    <div id="container">
+
+    </div>
+    <div id="button"></div>
+</body>
+</html>

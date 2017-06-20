@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+        body{ margin:0 auto;}
+        #stage{background:url(../images/wuziqi.gif) repeat;position:relative; border:solid 2px #000;}
+        span{width:26px;height:26px;overflow:hidden;display:block;position:absolute;}
+        #stage span img{margin-top:-7px;margin-left:-7px;}
+    </style>
+    <script type="text/javascript">
+        window.onload=function(){
+            var _stage=document.getElementById("stage");//平台，棋盘；
+            var _width=document.documentElement.clientWidth;//屏幕宽度；
+            var _height=document.documentElement.clientHeight;//屏幕高度；
+            var s_w=Math.floor((_width-40)/40)*40;//棋盘的宽度；
+            var s_h=Math.floor((_height-40)/40)*40;//棋盘的高度；
+            var _left=Math.floor((_width-s_w)/2);//整个棋盘距屏幕左边的距离（使棋盘相对于屏幕居中显示）
+            var _top=Math.floor((_height-s_h)/2);//整个棋盘距屏幕上边的距离（使棋盘相对于屏幕居中显示）
+            _stage.style.left=_left+"px";
+            _stage.style.top=_top+"px";
+            _stage.style.width=s_w+"px";
+            _stage.style.height=s_h+"px";
+            var _img=null;//作用：显示棋子，作为图片显示
+            var _span=null;//作用：存放棋子元素节点
+            var _piece={"white":[],"black":[]};//创建一个json格式的数组来保存所有已经下好的棋子的坐标
+            //在点击棋盘的时候通过获取_cmd的值来判断该下白旗还是黑棋（棋盘点击事件的绑定函数）
+            function  clickEvent(){
+                var _cmd=0;//cmd=0表示该下白旗，cmd=1表示该下黑棋；
+                _stage.onclick=function(evt){
+                    var e=evt||window.event;//事件对象的兼容写法
+                    _cmd=checkpiece(e,_cmd);//把当前点击事件发生时的鼠标点击的坐标和_cmd的值传递给函数checkpiece
+                                            //checkpiece这个函数的返回值是0或1，
+                                            // 也就是通过这个返回值来判断下次该下白旗还是黑棋
+                }
+            }
+            clickEvent();
+
+
+
+            function checkpiece(e,_cmd){
+                var x;var y;
+                //计算落子的横坐标
+                if(Math.abs(e.clientX-_left)%40>20){
+                    x=Math.ceil(Math.abs(e.clientX-_left)/40)*40-13;
+                }else{
+                    x=Math.floor(Math.abs(e.clientX-_left)/40)*40-13;
+                }
+                if(Math.abs(e.clientY-_top)%40>20){
+                    y=Math.ceil((e.clientY-_top)/40)*40-13;
+                }else{
+                    y=Math.floor((e.clientY-_top)/40)*40-13;
+                }
+
+
+//                var _piece={"white":[[x1,y1],[x2,y2]],"black":[]};
+//                _piece["white"][0][0]
+
+                var _exist=0;//判断这个坐标上有无棋子0表示没有棋子，1表示已经存在
+                for(var key in _piece){//遍历json格式的对象中的两个数组；遍历所有已经存在的黑棋，白旗的坐标
+                    for(var i=0;i<_piece[key].length;i++){
+                        if(_piece[key][i][0]==x && _piece[key][i][1]==y) {
+                            _exist=1;//表示这个坐标不可以落子,因为已经有棋子。
+                            break;
+                        }
+                    }
+                    if(_exist>0){
+                        break;
+                    }
+                }
+
+
+
+
+
+                if(_exist==0){//如果_exit=0,表示这个地方可以落子，这时再来判断应该落白子还是黑子；
+                    _img = document.createElement("img");
+                    if(_cmd>0){//如果_cmd==1,就在棋盘上加一个黑子
+                        _piece["black"].push([x,y]);
+                        _img.src = "images/black.png";
+                    }else{//如果_cmd==0,就在棋盘上加一个白子
+                        _piece["white"].push([x,y]);
+                        _img.src = "images/white.png";
+                    }
+                    _span = document.createElement("span");
+                    _span.style.left=x+"px";
+                    _span.style.top=y+"px";
+                    _span.style.borderRadius="50%";
+                    _span.appendChild(_img);
+                    _stage.appendChild(_span);
+                    iswin(_cmd,x,y);//每落一个子，判断一次输赢；如果没有赢,需要继续下棋
+                    return _cmd==0?1:0;
+                }else{
+                    return _cmd;
+                }
+            }
+
+            function iswin(_cmd,x,y){
+                var _h= 0,h_=0;//记录当前棋子水平方向，两边查找相同颜色的棋子个数
+                var _v= 0,v_=0;//记录当前棋子垂直方向，两边查找相同颜色的棋子个数
+                var _o= 0,o_=0;//记录当前棋子斜线方向，两边查找相同颜色的棋子个数
+                var _r= 0,r_=0;//记录当前棋子反斜线方向，两边查找相同颜色的棋子个数
+                var _key=_cmd==0?"white":"black";//作用,可以一次判断多次使用key,也就是在这里确定当前要执行的比较是白棋还是黑棋。
+                var _name=_cmd==0?"白方：":"黑方：";
+                for(var n=1;n<5;n++){//控制以当前落子的坐标为中心点,向8个方向各放射4次。
+                    for(var i=0;i<_piece[_key].length;i++){
+                        switch(_piece[_key][i][0]+","+_piece[_key][i][1]){//x1,y1
+                            case (x-40*n)+","+y://x,y
+                                    //_h++;
+                                if(_h+1==n){//此条件就是检测相通颜色棋子的连贯性。
+                                    _h++;
+                                }
+                                break;
+                            case (x+40*n)+","+y:
+                                    //h_++;
+                                if(h_+1==n){
+                                    h_++;
+                                }
+                                break;
+                            case x+","+(y-40*n):
+                                (_v+1==n)?_v++:0;
+                                break;
+                            case x+","+(y+40*n):
+                                (v_+1==n)?v_++:0;
+                                break;
+                            case (x-40*n)+","+(y-40*n):
+                                (_o+1==n)?_o++:0;
+                                break;
+                            case (x+40*n)+","+(y+40*n):
+                                (o_+1==n)?o_++:0;
+                                break;
+                            case (x+40*n)+","+(y-40*n):
+                                (_r+1==n)?_r++:0;
+                                break;
+                            case (x-40*n)+","+(y+40*n):
+                                (r_+1==n)?r_++:0;
+                                break;
+                        }
+                        if(_h+h_>=4 || _v+v_>=4 || _o+o_>=4 || _r+r_>=4){
+                            alert(_name+"赢!");
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+  <div id="stage"></div>
+</body>
+</html>
+
+
+
+<!--
+    1、棋盘 一个小方格平铺。还要计算:让棋盘的宽度不能超过浏览器的宽度,高度同理。
+    2、可以开始下棋
+       要考虑的问题有哪些?
+       1、棋子一定黑白交替放的
+       2、棋子的位置一定是由系统计算的精确位置
+       3、点击的要判断当前位置有没有棋子
+       4、判断输赢的时候是8个方向,上下左右,左上、右上、左下、右下。
+       5、五个棋子应该是同一个颜色。
+       6、不能在棋盘外面,在外面点击不生效。
+-->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
