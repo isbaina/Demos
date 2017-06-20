@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{ margin:0 auto;}
+        #panel{ width:1200px; overflow:hidden; height:405px; overflow:hidden; margin:0 auto; margin-top:50px;}
+        #panel div{ width:1400px; overflow:hidden; height:405px; overflow:hidden;}
+        #panel div span{ display:block; width:200px; height:405px; overflow:hidden; float:left;}
+        #panel div span img{ border:none; float:left; width:800px; height:405px;}
+    </style>
+    <script type="text/javascript" src="../javascript/jquery.js"></script>
+    <script type="text/javascript">
+        $(function(){
+            //jQuery.fx.off=true;//关闭动画
+            //jQuery.fx.interval = 100;//设置帧速
+            $("span").mouseenter(function(){
+                $("span").stop();
+                $("span").not(this).animate({"width":"80px"},800,"swing");
+                $(this).animate({"width":"800px"},800);
+                console.log($("span").queue("fx"));
+            });
+            $("span").mouseleave(function(){
+                $("span").stop();
+                $("span").animate({"width":"200px"},800);
+            });
+        });
+    </script>
+</head>
+<body>
+    <div id="panel">
+        <div>
+            <span><img alt="" src="../images/img1.jpg"/></span>
+            <span><img alt="" src="../images/img2.jpg"/></span>
+            <span><img alt="" src="../images/img3.jpg"/></span>
+            <span><img alt="" src="../images/img4.jpg"/></span>
+            <span><img alt="" src="../images/img5.jpg"/></span>
+            <span><img alt="" src="../images/img6.jpg"/></span>
+        </div>
+    </div>
+</body>
+</html>

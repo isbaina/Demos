@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        body{ margin:0 auto; text-align:center;}
+        .frame{ width:500px; height:500px; border-radius:50%; margin:100px auto auto 300px;}
+        .sun{ width:100%; height:100%; position:relative; border-radius:50%; position:relative; top:0px; left:0px;}
+        #sun{ width:100px; height:100px; position:absolute; top:50%; left:50%; margin:-50px auto auto -50px; border-radius:50%;}
+        #sun div{ width:100px; height:100px; border-radius:50%;background-color:red;}
+
+        .earth{ width:200px; height:200px; position:absolute; left:-100px; top:150px; opacity:0.8; border-radius:50%;}
+        #earth{ width:200px; height:200px; position:relative; border-radius:50%;}
+        #earth div{ width:50px; height:50px; position:absolute; left:75px; top:75px; background-color:yellow; border-radius:50%;}
+
+        .moon{ width:100px; height:100px; position:absolute; top:50px; left:-50px; border-radius:50%;}
+        #moon{ width:100px; height:100px; margin:0px; float:left; position:relative; border-radius:50%;}
+        #moon div{ width:25px; height:25px; background-color:red; position:absolute; top:37.5px; left:37.5px; border-radius:50%;}
+    </style>
+    <script type="text/javascript">
+        function main(){
+            var _earth=document.getElementById("frame").children[0].children[1];
+            var _moon=_earth.children[1];
+            var e_timer=0;
+            var m_timer=0;
+            var e_radius=250;
+            var m_radius=100;
+            var _limit=2;
+            var n=0;
+            var m=0;
+            function earthMove(){
+                window.clearTimeout(e_timer);
+                n+=0.01;
+                _earth.style.left=e_radius*Math.cos(n*Math.PI)+e_radius-100+"px";
+                _earth.style.top=e_radius*Math.sin(n*Math.PI)+e_radius-100+"px";
+                if(n>=_limit){
+                    n=0;
+                }
+                e_timer=window.setTimeout(earthMove,30);
+            }
+            earthMove();
+            function moonMove(){
+                window.clearTimeout(m_timer);
+                m+=0.02;
+                _moon.style.left=m_radius*Math.cos(m*Math.PI)+m_radius-50+"px";
+                _moon.style.top=m_radius*Math.sin(m*Math.PI)+m_radius-50+"px";
+                if(m>=_limit){
+                    m=0;
+                }
+                m_timer=window.setTimeout(moonMove,30);
+            }
+            moonMove();
+        }
+        window.onload=function(){
+            main();
+        }
+    </script>
+</head>
+<body>
+    <div class="frame" id="frame">
+        <div class="sun">
+            <div id="sun">
+                <div></div>
+            </div>
+            <div class="earth">
+                <div id="earth">
+                    <div></div>
+                </div>
+                <div class="moon">
+                    <div id="moon">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+</html>
